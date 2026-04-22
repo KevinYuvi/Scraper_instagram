@@ -4,3 +4,4 @@ results/
 instagram_session.json
 .env
 *.pyc
+node_modules/

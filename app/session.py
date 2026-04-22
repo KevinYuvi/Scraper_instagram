@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+
 class SessionManager:
     def __init__(self, session_file: Path) -> None:
         self.session_file = session_file
@@ -11,6 +12,7 @@ class SessionManager:
     def load_storage_state(self):
         if not self.exists():
             return None
+
         with self.session_file.open("r", encoding="utf-8") as f:
             return json.load(f)
 
@@ -20,12 +22,17 @@ class SessionManager:
             json.dump(storage, f, indent=2)
 
     async def is_valid(self, page) -> bool:
-        await page.goto("https://www.instagram.com/")
+        await page.goto("https://www.instagram.com/", wait_until="domcontentloaded")
+        await page.wait_for_timeout(3000)
         return "accounts/login" not in page.url
 
     async def login(self, page, username: str, password: str) -> None:
-        await page.goto("https://www.instagram.com/accounts/login/")
+        if not username or not password:
+            raise ValueError("Faltan INSTAGRAM_USERNAME o INSTAGRAM_PASSWORD en el .env")
+
+        await page.goto("https://www.instagram.com/accounts/login/", wait_until="domcontentloaded")
         await page.wait_for_timeout(4000)
+
         await page.fill('input[name="username"]', username)
         await page.fill('input[name="password"]', password)
         await page.click('button[type="submit"]')

@@ -6,9 +6,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-RESULTS_DIR = BASE_DIR / "results"
 DATA_DIR = BASE_DIR / "data"
+REPORTS_DIR = BASE_DIR / "reports"
 SESSION_FILE = DATA_DIR / "instagram_session.json"
+
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+
 
 @dataclass(slots=True)
 class Settings:
