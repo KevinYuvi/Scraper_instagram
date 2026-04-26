@@ -14,7 +14,7 @@ Deber de scraping para instagram
 ### Detalle de las publicaciones
 - Identifica si el contenido es un Post o un Reel.
 - Fecha de la publicación.
-- Conteo real de likes y comentarios
+- Conteo de likes y comentarios
 - Lista de hashtags.
 - El texto de la publicación y el enlace directo al contenido.
 
