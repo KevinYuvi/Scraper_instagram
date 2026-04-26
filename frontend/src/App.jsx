@@ -120,15 +120,6 @@ export default function App() {
                                 />
                                 Headless
                             </label>
-
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    checked={excludePinned}
-                                    onChange={(e) => setExcludePinned(e.target.checked)}
-                                />
-                                Excluir ancladas
-                            </label>
                         </div>
                     </div>
 
@@ -139,8 +130,9 @@ export default function App() {
                     <div className="grid two">
                         <div className="card profile-card">
                             <h2>Perfil</h2>
-                            <div className="profile-line"><strong>Usuario:</strong> @{profile.username}</div>
-                            <div className="profile-line"><strong>Publicaciones:</strong> {formatNumber(profile.posts_count)}</div>
+                            <div className="profile-line">
+                                <strong>Usuario:</strong> @{profile.username || username.trim().replace("@", "")}
+                            </div>                            <div className="profile-line"><strong>Publicaciones:</strong> {formatNumber(profile.posts_count)}</div>
                             <div className="profile-line"><strong>Followers:</strong> {formatNumber(profile.followers)}</div>
                             <div className="profile-line"><strong>Following:</strong> {formatNumber(profile.following)}</div>
                             <div className="profile-line profile-url"><strong>URL:</strong> {profile.profile_url}</div>

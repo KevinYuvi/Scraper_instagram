@@ -360,7 +360,7 @@ tbody tr:hover td {
 }
 
 .post-link {
-  color: var(--blue);
+  color: var(--primary);
   font-weight: 700;
   text-decoration: none;
 }

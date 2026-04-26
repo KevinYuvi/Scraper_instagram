@@ -14,9 +14,12 @@ class PostStats:
     fecha: str
     likes: int
     comentarios: int
-    hashtags: list[str] = field(default_factory=list)
-    url: str = ""
-    caption: str = ""
+    hashtags: list[str]
+    url: str
+    caption: str
+    raw_json: dict = field(default_factory=dict) # <--- Asegúrate de que esto esté aquí
+
+
 
 
 @dataclass(slots=True)
