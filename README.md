@@ -81,8 +81,6 @@ Debes crear un archivo llamado `.env` dentro de la carpeta `backend` con tus cre
 ```env
 INSTAGRAM_USERNAME=tu_usuario
 INSTAGRAM_PASSWORD=tu_contraseña
-MAX_POSTS=10
-HEADLESS_MODE=True
 ```
 
 **Lanzar el servidor:**
