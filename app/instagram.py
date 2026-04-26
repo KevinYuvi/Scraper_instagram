@@ -126,31 +126,125 @@ class InstagramStatsScraper:
         return {}
 
     async def get_profile_info(self) -> ProfileStats:
-        await self.page.goto(self.profile_url, wait_until="domcontentloaded", timeout=60000)
-        await self.page.wait_for_timeout(2500)
         profile = ProfileStats(profile_url=self.profile_url)
+        profile.username = self.profile_url.rstrip("/").split("/")[-1]
+
+        captured_jsons = []
+
+        async def capture_response(response):
+            try:
+                if "instagram.com" not in response.url:
+                    return
+
+                if response.status != 200:
+                    return
+
+                content_type = response.headers.get("content-type", "")
+                if "json" not in content_type:
+                    return
+
+                data = await response.json()
+                captured_jsons.append(data)
+
+            except Exception:
+                pass
+
+        def find_profile_data(obj):
+            if isinstance(obj, dict):
+                username = obj.get("username")
+
+                if username == profile.username:
+                    return obj
+
+                user = obj.get("user")
+                if isinstance(user, dict) and user.get("username") == profile.username:
+                    return user
+
+                for value in obj.values():
+                    found = find_profile_data(value)
+                    if found:
+                        return found
+
+            elif isinstance(obj, list):
+                for item in obj:
+                    found = find_profile_data(item)
+                    if found:
+                        return found
+
+            return None
+
+        def get_count(data, possible_keys):
+            for key in possible_keys:
+                value = data.get(key)
+
+                if isinstance(value, int):
+                    return value
+
+                if isinstance(value, dict):
+                    count = value.get("count")
+                    if isinstance(count, int):
+                        return count
+
+            return 0
 
         try:
-            text = await self.page.inner_text("main") or ""
-            scripts = await self.page.query_selector_all('script[type="application/ld+json"]')
-            for sc in (scripts or []):
-                try:
-                    raw = await sc.inner_text()
-                    parsed = json.loads(raw)
-                    items = parsed if isinstance(parsed, list) else [parsed]
-                    for item in items:
-                        if not isinstance(item, dict): continue
-                        profile.username = (item.get("alternateName") or "").replace("@", "") or profile.username
-                        profile.full_name = item.get("name") or profile.full_name
-                        
-                        stats = item.get("interactionStatistic")
-                        if stats:
-                            s_list = stats if isinstance(stats, list) else [stats]
-                            for s in s_list:
-                                if s.get("@type") == "FollowAction":
-                                    profile.followers = int(s.get("userInteractionCount", 0))
-                except: continue
-        except: pass
+            self.page.on("response", capture_response)
+
+            await self.page.goto(
+                self.profile_url,
+                wait_until="domcontentloaded",
+                timeout=60000
+            )
+
+            await self.page.wait_for_timeout(7000)
+
+            profile_data = None
+
+            for data in captured_jsons:
+                profile_data = find_profile_data(data)
+                if profile_data:
+                    break
+
+            if profile_data:
+                profile.full_name = profile_data.get("full_name") or ""
+                profile.biography = profile_data.get("biography") or ""
+                profile.is_verified = bool(profile_data.get("is_verified"))
+
+                profile.followers = get_count(profile_data, [
+                    "follower_count",
+                    "followers",
+                    "edge_followed_by"
+                ])
+
+                profile.following = get_count(profile_data, [
+                    "following_count",
+                    "following",
+                    "edge_follow"
+                ])
+
+                profile.posts_count = get_count(profile_data, [
+                    "media_count",
+                    "posts_count",
+                    "edge_owner_to_timeline_media"
+                ])
+
+                print(f"✅ Perfil encontrado: @{profile.username}")
+                print(f"👥 Followers: {profile.followers}")
+                print(f"➡️ Following: {profile.following}")
+                print(f"🧾 Publicaciones: {profile.posts_count}")
+
+            else:
+                print("⚠️ No se encontró JSON del perfil. Se usará solo username.")
+
+        except Exception as e:
+            print(f"❌ Error perfil: {e}")
+
+        finally:
+            try:
+                self.page.remove_listener("response", capture_response)
+            except Exception:
+                pass
+
         return profile
 
     async def get_posts(self) -> list[PostRef]:
