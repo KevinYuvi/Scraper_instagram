@@ -1,6 +1,5 @@
 from playwright.async_api import async_playwright, Browser, BrowserContext, Page
 
-
 class BrowserManager:
     def __init__(self, headless: bool) -> None:
         self.headless = headless
