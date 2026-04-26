@@ -1,6 +1,9 @@
 from typing import Any
 import sys
 import asyncio
+from fastapi.responses import StreamingResponse
+import requests
+import io
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -58,3 +61,14 @@ async def scrape_profile(payload: ScrapeRequest):
         return result
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
+    
+@app.get("/api/profile-image")
+def profile_image(url: str):
+    r = requests.get(url, headers={
+        "User-Agent": "Mozilla/5.0"
+    })
+
+    return StreamingResponse(
+        io.BytesIO(r.content),
+        media_type="image/jpeg"
+    )

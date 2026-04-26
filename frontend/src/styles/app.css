@@ -124,12 +124,6 @@ input:focus {
   outline: none;
 }
 
-.input-with-icon:focus-within,
-input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
-}
-
 button {
   display: inline-flex;
   align-items: center;
@@ -343,6 +337,7 @@ tbody tr:hover {
 }
 
 @media (max-width: 980px) {
+
   .profile-summary,
   .metrics-grid,
   .options-row {
@@ -368,10 +363,26 @@ tbody tr:hover {
     grid-template-columns: 1fr;
   }
 
-  .avatar{
-  width:72px;
-  height:72px;
-  border-radius:50%;
-  object-fit:cover;
 }
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.avatar-wrap {
+  
+  border-radius: 50%;
+  overflow: hidden;
+  background: #e5e7eb;
+  border: 3px solid #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,.12);
+}
+
+.profile-avatar {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
 }

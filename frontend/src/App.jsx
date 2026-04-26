@@ -67,7 +67,7 @@ export default function App() {
                 body: JSON.stringify({
                     username: cleanUsername,
                     max_posts: Number(maxPosts),
-                    
+
                 }),
             });
 
@@ -135,11 +135,18 @@ export default function App() {
                 <>
                     <section className="profile-summary">
                         <div className="profile-card">
-                            <div>
-                                <span className="eyebrow">Perfil</span>
-                                <h2>{profile.username || cleanUsername}</h2>
-                            </div>
+                            <div className="profile-header">
+                                <div className="avatar-wrap">
+                                    <img
+                                        src={`http://127.0.0.1:8000/api/profile-image?url=${encodeURIComponent(profile.profile_pic_url)}`}
+                                        alt={profile.username}
+                                        className="profile-avatar"
+                                    />
 
+                                </div>
+
+                            </div>
+                            <h2>{profile.username || cleanUsername}</h2>
                             <a href={profile.profile_url} target="_blank" rel="noreferrer">
                                 Ver perfil
                             </a>
@@ -148,7 +155,8 @@ export default function App() {
                         <div className="metrics-grid">
                             <MetricCard title="Seguidores" value={profile.followers} icon={Users} />
                             <MetricCard title="Seguidos" value={profile.following} icon={UserPlus} />
-                            <MetricCard title="Publicaciones" value={profile.posts_count} icon={Images} />                            <MetricCard title="Likes totales" value={totals.likes} icon={Heart} />
+                            <MetricCard title="Publicaciones" value={profile.posts_count} icon={Images} />
+                            <MetricCard title="Likes totales" value={totals.likes} icon={Heart} />
                             <MetricCard title="Comentarios" value={totals.comments} icon={MessageCircle} />
                             <MetricCard title="Hashtags" value={totals.hashtags} icon={Hash} />
                         </div>
@@ -157,8 +165,7 @@ export default function App() {
                     <section className="card">
                         <div className="section-header">
                             <div>
-                                <span className="eyebrow">Detalle</span>
-                                <h2>Publicaciones analizadas</h2>
+                                <h2>Publicaciones</h2>
                             </div>
                         </div>
 

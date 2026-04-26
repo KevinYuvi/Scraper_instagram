@@ -65,7 +65,7 @@ class InstagramStatsScraper:
                     raw_data = json.loads(html[json_start:json_end])
 
         except Exception as e:
-            print(f"❌ Error post {idx}: {e}")
+            print(f"Error post {idx}: {e}")
 
         media = self._find_media_object(raw_data, shortcode)
 
@@ -90,6 +90,27 @@ class InstagramStatsScraper:
             raw_json=raw_data
         )
 
+    def _extract_profile_pic(self, html: str, username: str) -> str:
+        patterns = [
+            rf'<img[^>]+alt="Foto del perfil de {re.escape(username)}"[^>]+src="([^"]+)"',
+            rf'<img[^>]+alt="Profile picture of {re.escape(username)}"[^>]+src="([^"]+)"',
+            r'<img[^>]+alt="Foto del perfil[^"]*"[^>]+src="([^"]+)"',
+            r'<img[^>]+alt="Profile picture[^"]*"[^>]+src="([^"]+)"',
+        ]
+
+        for pattern in patterns:
+            match = re.search(pattern, html, re.I)
+
+            if match:
+                url = (
+                    match.group(1)
+                    .replace("&amp;", "&")
+                    .replace("\\u0026", "&")
+                    .replace("\\/", "/")
+                )
+                return url
+        return ""
+
     async def get_profile_info(self) -> ProfileStats:
         profile = ProfileStats(profile_url=self.profile_url)
         profile.username = self.profile_url.rstrip("/").split("/")[-1]
@@ -100,6 +121,8 @@ class InstagramStatsScraper:
 
             html = await self.page.content()
             body = await self.page.inner_text("body")
+
+            profile.profile_pic_url = self._extract_profile_pic(html, profile.username)
 
             profile.followers = self._extract_visible_count(
                 body,
@@ -140,7 +163,7 @@ class InstagramStatsScraper:
             profile.is_verified = '"is_verified":true' in html
 
         except Exception as e:
-            print(f"❌ Error perfil: {e}")
+            print(f"Error perfil: {e}")
 
         return profile
 
